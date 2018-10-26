@@ -1,0 +1,219 @@
+<div class="notebook">
+
+<div class="nb-cell program" name="p3">
+:-use_module(library(clpfd)).
+a(1).
+b(1).
+
+u(1).
+u(2).
+u(3).
+
+u_x(U,X):-
+    a(A),
+    X#=A*U.
+
+ux_y(U,X,Y):-
+    b(B),
+    Y#=(B*X)+U.
+</div>
+
+<div class="nb-cell markdown" name="md13">
+Table 4.1 Page 93.
+</div>
+
+<div class="nb-cell query" name="q11">
+u(U),u_x(U,X),ux_y(U,X,Y).
+</div>
+
+<div class="nb-cell markdown" name="md14">
+Fixing X, and removing the relationship between u and x.
+</div>
+
+<div class="nb-cell query" name="q12">
+member(X,[1,2,3]),u(U),ux_y(U,X,Y).
+</div>
+
+<div class="nb-cell markdown" name="md15">
+Fixing Y and replacing second equation with Y =y.
+</div>
+
+<div class="nb-cell query" name="q13">
+u(U),u_x(U,X),member(Y,[1,2,3]).
+</div>
+
+<div class="nb-cell markdown" name="md16">
+
+4.2.3
+</div>
+
+<div class="nb-cell program" name="p4">
+a(0.5).
+b(0.7).
+c(0.4).
+
+joeXHY(0.5,1,1.5).
+
+u_x(X,X).
+
+u_x_h(U,X,H):-
+    a(A),
+    H is (A * X) + U.
+
+u_x_h_y(U,X,H,Y):- 
+    b(B),
+    c(C),
+    Y is (B*X) + (C*H) +U.
+</div>
+
+<div class="nb-cell query" name="q14">
+joeXHY(X,H,Y), u_x(0.5,X).
+</div>
+
+<div class="nb-cell markdown" name="md1">
+4.3 Non Deterministic Counterfactuals.
+</div>
+
+<div class="nb-cell program" name="p1">
+:- use_module(library(pita)).
+:-use_module(library(clpfd)).
+:- if(current_predicate(use_rendering/1)).
+:- use_rendering(graphviz).
+:- endif.
+
+:- pita.
+
+:- begin_lpad.
+a(1).
+b(1).
+
+u(1,I):1/2 ; u(2,I):1/3 ; u(3,I):1/6.
+
+u_x(U,X):-
+    a(A),
+    X is A*U.
+
+ux_y(U,X,Y):-
+    u(U,_),
+    b(B),
+    Y is (B*X)+U.
+
+:-end_lpad.
+</div>
+
+<div class="nb-cell markdown" name="md2">
+P(Y_1 =4).
+</div>
+
+<div class="nb-cell query" name="q1">
+prob(ux_y(_,1,4),P).
+</div>
+
+<div class="nb-cell markdown" name="md3">
+P(Y_1 =3).
+</div>
+
+<div class="nb-cell query" name="q2">
+prob(ux_y(_,1,3),P).
+</div>
+
+<div class="nb-cell markdown" name="md4">
+P(Y_2 &gt;3).
+</div>
+
+<div class="nb-cell query" name="q3">
+findall(P,prob((ux_y(_,2,Y),Y&gt;3),P),Ps),sumlist(Ps,S).
+</div>
+
+<div class="nb-cell markdown" name="md5">
+P(Y_2 &gt;3,Y_1 &lt;4)
+</div>
+
+<div class="nb-cell query" name="q4">
+findall(P,prob((ux_y(_,2,Y),Y&gt;3,ux_y(_,1,Y2),Y2&lt;4),P),Ps),sumlist(Ps,S).
+</div>
+
+<div class="nb-cell markdown" name="md6">
+P(Y_1&lt;4,Y-X &gt;1)
+</div>
+
+<div class="nb-cell query" name="q5">
+findall(P,prob((X=1,ux_y(_,X,Y),Y&lt;4,1 &lt; Y-X),P),Ps),sumlist(Ps,S).
+</div>
+
+<div class="nb-cell markdown" name="md7">
+P(Y_1 &lt; Y_2)
+</div>
+
+<div class="nb-cell query" name="q6">
+findall(P,prob((ux_y(_,1,Y1),ux_y(_,2,Y2),Y1&lt;Y2),P),Ps),sumlist(Ps,S).
+</div>
+
+<div class="nb-cell markdown" name="md8">
+E[Y_1|Z=1]
+</div>
+
+<div class="nb-cell program" name="p2">
+:- use_module(library(mcintyre)).
+:-use_module(library(clpfd)).
+:- if(current_predicate(use_rendering/1)).
+:- use_rendering(c3).
+:- endif.
+
+:- mc.
+
+:- begin_lpad.
+a(1).
+b(1).
+u2(1).
+
+u1_x(_U1,_X).
+
+u2_x_z(U2,X,Z):-
+    a(A),
+    Z is A*X+U2.
+
+bu2_x_z(U2,X,Z):-
+    a(A),
+    X is (   Z -U2)/A.
+
+z_y(Z,Y):-
+    b(B),
+    Y is B*Z.
+
+:- end_lpad.
+</div>
+
+<div class="nb-cell query" name="q7">
+mc_lw_expectation((u2_x_z(1,1,Z),z_y(Z,Y)),Z=1,100,Y,Exp).
+</div>
+
+<div class="nb-cell markdown" name="md10">
+Not sure if this is the same or differnt?
+</div>
+
+<div class="nb-cell query" name="q8">
+mc_lw_expectation((u2_x_z(1,1,Z),z_y(Z,Y)),bu2_x_z(1,_,1),100,Y,Exp).
+</div>
+
+<div class="nb-cell markdown" name="md9">
+By 4.9 E[Y_1|Z=1] =(a+1)*b
+</div>
+
+<div class="nb-cell query" name="q9">
+a(A),b(B), E is (A+1)*B.
+</div>
+
+<div class="nb-cell markdown" name="md11">
+4.10: E[Y_0|Z=1] = b
+</div>
+
+<div class="nb-cell query" name="q10">
+mc_lw_expectation((u2_x_z(1,0,Z),z_y(Z,Y)),Z=1,100,Y,Exp),b(EXP).
+</div>
+
+<div class="nb-cell markdown" name="md12">
+4.11: E[Y|Do(X=1),Z=1] = b
+</div>
+
+</div>
